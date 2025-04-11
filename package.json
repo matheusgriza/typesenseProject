@@ -1,0 +1,29 @@
+{
+  "name": "typesenseproject",
+  "version": "1.0.0",
+  "description": "Project to implement typesense api",
+  "homepage": "https://github.com/matheusgriza/typesenseProject#readme",
+  "bugs": {
+    "url": "https://github.com/matheusgriza/typesenseProject/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matheusgriza/typesenseProject.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "start": "node --loader ts-node/esm index.ts"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.27.0",
+    "dotenv": "^16.5.0",
+    "typesense": "^2.0.3"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
