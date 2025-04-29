@@ -1,52 +1,66 @@
 import { Client } from  'typesense'
 import { readFile } from 'fs/promises'
 import 'dotenv/config'
+
+
+function createClient(){
+    try{
+        let client = new Client({
+            'nodes': [{
+                'host': 'typesense-dev.paycaddy.money', // For Typesense Cloud use xxx.a1.typesense.net
+                'port': 443,      // For Typesense Cloud use 443
+                'protocol': 'https'   // For Typesense Cloud use https
+            }],
+            'apiKey': `${process.env.API_KEY}`,
+            'connectionTimeoutSeconds': 2
+        })
+    
+        return client
+    }catch(error){
+        
+        throw error
+    }
+}
+
+
 try{
-    let client = new Client({
-        'nodes': [{
-            'host': '3izcvpjuet17nyq2p-1.a1.typesense.net', // For Typesense Cloud use xxx.a1.typesense.net
-            'port': 443,      // For Typesense Cloud use 443
-            'protocol': 'https'   // For Typesense Cloud use https
-        }],
-        'apiKey': `${process.env.ADMIN_API_KEY}`,
-        'connectionTimeoutSeconds': 2
-    })
+    let client = createClient();
 
+    let booksSchema = {
+        'name': 'users',
+        'fields': [
+            { name: 'clientId', type: 'string' as const, facet: true },
+            { name: 'name', type: 'string' as const },
+            { name: 'type', type: 'string' as const, facet: true },
+            { name: 'amountWallet', type: 'int32' as const },
+            { name: 'amountCard', type: 'int32' as const }
+        ],
+        default_sorting_field: 'name'
+    }
 
-    // let booksSchema = {
-    //     'name': 'books',
-    //     'fields': [
-    //         { name: 'title', type: 'string' as const },
-    //         { name: 'authors', type: 'string[]' as const, facet: true },
-    //         { name: 'publication_year', type: 'int32' as const, facet: true },
-    //         { name: 'ratings_count', type: 'int32' as const },
-    //         { name: 'average_rating', type: 'float' as const }
-    //     ],
-    //     default_sorting_field: 'ratings_count'
-    // }
+    client.collections().create(booksSchema)
+        .catch((err) => {
+            console.log(err)
+        })
 
-    // client.collections().create(booksSchema)
-    //     .catch((err) => {
-    //         console.log(err)
-    //     })
-
-    // const booksInJsonl = await readFile("./client/temp/books.jsonl", 'utf-8');
-    // client.collections('books').documents().import(booksInJsonl);
+    //Aca es donde debemos generar los .jsonl y enviarlos a la vm 
+    const booksInJsonl = await readFile("./client/temp/books.jsonl", 'utf-8');
+    client.collections('books').documents().import(booksInJsonl);
 
     let searchParameters = {
-        'q': 'harry stone', //input text
-        'query_by': 'title', // field
-        'sort_by': 'ratings_count:desc'
+        'q': 'harry', //input text
+        'query_by': 'title',
+        'sort_by': 'publication_year:asc',
     }
 
     client.collections('books')
         .documents()
         .search(searchParameters)
         .then((result) => {
-            console.log(result.found)
-            const titles = result.hits?.map( hit =>{
-                console.log(hit.document);
-            })
+            console.log( result )
+            // const titles = result.hits?.map( hit =>{
+            //     console.log(hit.document);
+            // })
         })
 
 }catch(error){
